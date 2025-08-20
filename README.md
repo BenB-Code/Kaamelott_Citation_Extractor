@@ -92,6 +92,7 @@ src/
 │   ├── citations-extract.constant.ts    # 12 regex d'extraction ciblées
 │   ├── cleaning-regexp.constant.ts      # 16 patterns de nettoyage
 │   ├── episodes-names.constant.ts       # 200+ noms d'épisodes mappés
+│   ├── movies-names.constant.ts         # noms de films mappés
 │   ├── xml-urls.constant.ts             # URLs des 28 sources Wikiquote
 │   └── *.enum.ts                        # Enums pour extensions et types
 ├── models/
@@ -195,11 +196,11 @@ logger.error(new Error("Erreur"), "Context");     // Stack trace complète
 ## 🗺️ Roadmap
 
 - [ ] **Tests unitaires** Jest avec coverage > 80%
-- [ ] **Documenter** les regexp
+- [x] **Documenter** les regexp -> [Documentation](REGEXP.md)
 - [ ] **Terminal** interactif pour choisir local/prod, cleanse les anciens fichiers, etc
 - [ ] **Parsing des Dialogues** depuis Wikiquote
 - [ ] **Parsing des Bandes Dessinées** Kaamelott
-- [ ] _WIP_ **[API REST](https://github.com/dantika/Kaamelott_Citation_API)** pour consultation des citations
+- [x] _WIP_ **[API REST](https://github.com/dantika/Kaamelott_Citation_API)** pour consultation des citations
 - [ ] _WIP_ **[Interface web](https://github.com/dantika)** de recherche et filtrage
 
 ## 🤝 Contribution

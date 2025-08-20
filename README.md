@@ -196,7 +196,7 @@ logger.error(new Error("Erreur"), "Context");     // Stack trace complète
 ## 🗺️ Roadmap
 
 - [ ] **Tests unitaires** Jest avec coverage > 80%
-- [ ] **Documenter** les regexp
+- [x] **Documenter** les regexp -> [Documentation](REGEXP.md)
 - [ ] **Terminal** interactif pour choisir local/prod, cleanse les anciens fichiers, etc
 - [ ] **Parsing des Dialogues** depuis Wikiquote
 - [ ] **Parsing des Bandes Dessinées** Kaamelott

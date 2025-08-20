@@ -1,6 +1,7 @@
 import { CITATIONS_EXTRACT } from "../constants/citations-extract.constant";
 import { EPISODES_NAMES } from "../constants/episodes-names.constant";
 import { MEDIA_TYPE } from "../constants/media.enum";
+import { MOVIES_NAMES } from "./../constants/movies-names.constant";
 import {
   CitationBuilder,
   CitationMetadata,
@@ -61,6 +62,13 @@ export class ParserService {
     return cleanedResult;
   }
 
+  extractMovieTitleContent(rawData: string, regexp: RegExp): string {
+    let movieName = [...rawData.matchAll(regexp)].map((e) => e[1])[0] || "";
+    if (movieName in MOVIES_NAMES) {
+      movieName = MOVIES_NAMES[movieName as keyof typeof MOVIES_NAMES];
+    }
+    return movieName;
+  }
   extractContent(rawData: string, regexp: RegExp): string {
     return [...rawData.matchAll(regexp)].map((e) => e[1])[0] || "";
   }
@@ -84,10 +92,13 @@ export class ParserService {
     );
 
     if (citation.media === MEDIA_TYPE.movie) {
-      citation.title = this.extractContent(
+      citation.title = this.extractMovieTitleContent(
         commonService.capitalizeFirstLetter(rawData),
         CITATIONS_EXTRACT.title
       );
+      if (citation.title === MOVIES_NAMES["w:dies irae (court métrage)"]) {
+        citation.media = MEDIA_TYPE.court_metrage;
+      }
       citation.date = this.extractContent(rawData, CITATIONS_EXTRACT.date);
     } else {
       citation.season = this.extractContent(rawData, CITATIONS_EXTRACT.season);

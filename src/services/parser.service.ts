@@ -1,11 +1,11 @@
 import { CITATIONS_EXTRACT } from '../constants/citations-extract.constant';
 import { EPISODES_NAMES } from '../constants/episodes-names.constant';
 import { MEDIA_TYPE } from '../constants/media.enum';
-import { MOVIES_NAMES } from './../constants/movies-names.constant';
 import { commonService } from './common.service';
 import { CitationMetadata } from '../models/citation-metadata.model';
 import { CitationModel } from '../models/citation.model';
 import { CitationBuilder } from '../models/citation-metadata.builder';
+import { MOVIES_NAMES } from '../constants/movies-names.constant';
 
 export class ParserService {
   isolateCharactersFromGlobal(list: RegExpExecArray[]): string[] {

@@ -1,4 +1,4 @@
 export type Episode = {
-    name: string;
-    number: string | number;
-}
+  name: string;
+  number: string | number;
+};

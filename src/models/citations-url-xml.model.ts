@@ -1,5 +1,5 @@
 export type CitationUrlXmlInterface = {
-    fileName: string;
-    url: string;
-    filePath: string;
-}
+  fileName: string;
+  url: string;
+  filePath: string;
+};

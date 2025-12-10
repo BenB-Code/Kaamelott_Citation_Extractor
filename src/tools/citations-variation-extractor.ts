@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { FILE_EXTENSION } from './../constants/file-extension.enum';
-import { CITATIONS, GLOBAL, PARSED_EXTRACT, VARIATIONS } from './../constants/filenames.constant';
-import { logger } from './../services/logger.service';
+import { CITATIONS, GLOBAL, PARSED_EXTRACT, VARIATIONS } from '../constants/filenames.constant';
+import { FILE_EXTENSION } from '../constants/file-extension.enum';
+import { logger } from '../services/logger.service';
 
 type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
 type JsonObject = { [key: string]: JsonValue };

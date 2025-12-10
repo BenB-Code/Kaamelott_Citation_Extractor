@@ -1,6 +1,10 @@
 name: Update citations
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Tag'
+        required: true
 jobs:
   lint:
     name: Lint & Format Check

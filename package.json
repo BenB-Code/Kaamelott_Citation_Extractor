@@ -9,12 +9,19 @@
     "start:prod": "set NODE_ENV=prod&& npm run build && node dist/index.js",
     "start:citations:variations_extract": "ts-node ./src/tools/citations-variation-extractor.ts",
     "format": "prettier --write \"src/**/*.{ts,scss,html,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,scss,html,json}\""
+    "format:check": "prettier --check \"src/**/*.{ts,scss,html,json}\"",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "lint-staged": "^16.2.3",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
-    "prettier": "^3.6.2"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.40.0"
   },
   "keywords": [
     "kaamelott",

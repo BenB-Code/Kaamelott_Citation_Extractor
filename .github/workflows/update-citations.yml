@@ -56,11 +56,6 @@ jobs:
         run: |
           shasum -a 256 kaamelott_citations.zip | awk '{ print $1 }' > sha256.txt
           echo "sha=$(cat sha256.txt)" >> $GITHUB_OUTPUT
-      - name: Compute SHA256
-        id: sha
-        run: |
-          shasum -a 256 kaamelott_citations.zip | awk '{ print $1 }' > sha256.txt
-          echo "sha=$(cat sha256.txt)" >> $GITHUB_OUTPUT
       - name: Update Citations Release
         uses: softprops/action-gh-release@v2
         with:

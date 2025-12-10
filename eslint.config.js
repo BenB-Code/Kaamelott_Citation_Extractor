@@ -57,6 +57,7 @@ module.exports = tseslint.config(
             'no-console': 'off',
             'no-new-wrappers': 'error',
             'no-useless-concat': 'error',
+            'no-useless-escape': 'off',
             'no-var': 'error',
             'no-restricted-syntax': 'off',
             'no-shadow': 'error',

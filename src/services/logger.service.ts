@@ -12,7 +12,7 @@ export class Logger {
   }
 
   private write(line: string, overwrite: boolean): void {
-    if (overwrite) {
+    if (overwrite && stdout.isTTY) {
       stdout.clearLine(0);
       stdout.cursorTo(0);
       stdout.write(line);

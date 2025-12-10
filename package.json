@@ -7,11 +7,23 @@
     "build": "tsc",
     "start:local": "set NODE_ENV=local&& npm run build && node dist/index.js",
     "start:prod": "set NODE_ENV=prod&& npm run build && node dist/index.js",
-    "start:citations:variations_extract": "ts-node ./src/tools/citations-variation-extractor.ts"
+    "start:citations:variations_extract": "ts-node ./src/tools/citations-variation-extractor.ts",
+    "format": "prettier --write \"src/**/*.{ts,scss,html,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,scss,html,json}\"",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "ts-node": "^10.9.2"
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.3",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.40.0"
   },
   "keywords": [
     "kaamelott",

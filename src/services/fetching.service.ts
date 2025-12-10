@@ -1,35 +1,27 @@
-import { readFileSync } from "fs";
-import { logger } from "./logger.service";
+import { readFileSync } from 'fs';
+import { logger } from './logger.service';
 
 export class FetchingService {
-  private loggerContext = "FetchingService";
-
-  constructor() {}
+  private loggerContext = 'FetchingService';
 
   async fetch(url: string): Promise<string> {
     logger.info(`Fetching URL: ${url}`, this.loggerContext);
     try {
       const response = await fetch(url);
-      return response.text() || "";
+      return (await response.text()) || '';
     } catch (err: any) {
-      logger.error(
-        `Failed to fetch ${url}: ${err.message ?? err}`,
-        this.loggerContext
-      );
-      return "";
+      logger.error(`Failed to fetch ${url}: ${err.message ?? err}`, this.loggerContext);
+      return '';
     }
   }
 
   localFetch(filePath: string): string | null {
     logger.info(`Reading local file: ${filePath}`, this.loggerContext);
     try {
-      const data = readFileSync(filePath, "utf8");
-      return data || "";
+      const data = readFileSync(filePath, 'utf8');
+      return data || '';
     } catch (err: any) {
-      logger.error(
-        `Failed to read file ${filePath}: ${err.message ?? err}`,
-        this.loggerContext
-      );
+      logger.error(`Failed to read file ${filePath}: ${err.message ?? err}`, this.loggerContext);
       return null;
     }
   }

@@ -1,3 +1,3 @@
-export interface AuthorModel {
+export type Author = {
   name: string[];
-}
+};

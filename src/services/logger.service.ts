@@ -1,5 +1,5 @@
-import { stdout } from "process";
-import { LogLevel } from "../models/log-level.type";
+import { stdout } from 'process';
+import { LogLevel } from '../models/log-level.type';
 
 export class Logger {
   private timestamp(): string {
@@ -7,7 +7,7 @@ export class Logger {
   }
 
   private buildLine(level: LogLevel, msg: string, context?: string): string {
-    const ctx = context ? ` [${context}]` : "";
+    const ctx = context ? ` [${context}]` : '';
     return `${this.timestamp()} [${level}]${ctx} ${msg}`;
   }
 
@@ -17,34 +17,25 @@ export class Logger {
       stdout.cursorTo(0);
       stdout.write(line);
     } else {
-      stdout.write("\n" + line);
+      stdout.write('\n' + line);
     }
   }
 
-  stringifyText(message: any): string {
-    return typeof message === "string" ? message : JSON.stringify(message);
+  stringifyText(message: unknown): string {
+    return typeof message === 'string' ? message : JSON.stringify(message);
   }
 
-  info(message: any, context?: string, overwrite = false): void {
-    this.write(
-      this.buildLine("INFO", this.stringifyText(message), context),
-      overwrite
-    );
+  info(message: unknown, context?: string, overwrite = false): void {
+    this.write(this.buildLine('INFO', this.stringifyText(message), context), overwrite);
   }
 
-  warn(message: any, context?: string, overwrite = false): void {
-    this.write(
-      this.buildLine("WARN", this.stringifyText(message), context),
-      overwrite
-    );
+  warn(message: unknown, context?: string, overwrite = false): void {
+    this.write(this.buildLine('WARN', this.stringifyText(message), context), overwrite);
   }
 
-  error(message: any, context?: string, overwrite = false): void {
-    const text =
-      message instanceof Error
-        ? message.stack || message.message
-        : JSON.stringify(message);
-    this.write(this.buildLine("ERROR", text, context), overwrite);
+  error(message: unknown, context?: string, overwrite = false): void {
+    const text = message instanceof Error ? message.stack || message.message : JSON.stringify(message);
+    this.write(this.buildLine('ERROR', text, context), overwrite);
   }
 }
 

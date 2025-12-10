@@ -1,4 +1,4 @@
 export enum FILE_EXTENSION {
-  JSON = ".json",
-  XML = ".xml",
+  JSON = '.json',
+  XML = '.xml',
 }

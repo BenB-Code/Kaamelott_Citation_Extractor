@@ -1,26 +1,19 @@
-import { CLEANING_REGEXP } from "../constants/cleaning-regexp.constant";
-import { logger } from "./logger.service";
+import { CLEANING_REGEXP } from '../constants/cleaning-regexp.constant';
+import { logger } from './logger.service';
 
 export class CommonService {
-  private loggerContext = "CommonService";
-  constructor() {}
+  private loggerContext = 'CommonService';
+
   cleanText(text: string): string {
     let res = text;
     logger.info(`Cleaning raw text`, this.loggerContext);
     CLEANING_REGEXP.forEach((symbol, i) => {
-      i < 1
-        ? (res = text.replace(symbol.regexp, symbol.converted))
-        : (res = res.replace(symbol.regexp, symbol.converted));
+      res = i < 1 ? text.replace(symbol.regexp, symbol.converted) : res.replace(symbol.regexp, symbol.converted);
     });
     return res.trim();
   }
 
-  safeExecute<T>(
-    fn: () => T,
-    errorMsg: string,
-    context: string = this.loggerContext,
-    fallback?: T
-  ): T {
+  safeExecute<T>(fn: () => T, errorMsg: string, context: string = this.loggerContext, fallback?: T): T {
     try {
       return fn();
     } catch (err) {
@@ -29,11 +22,8 @@ export class CommonService {
     }
   }
 
-  capitalizeFirstLetter(text: string) {
-    return (
-      String(text).charAt(0).toUpperCase() +
-        String(text?.toLowerCase()).slice(1) || ""
-    );
+  capitalizeFirstLetter(text: string): string {
+    return String(text).charAt(0).toUpperCase() + String(text?.toLowerCase()).slice(1) || '';
   }
 }
 

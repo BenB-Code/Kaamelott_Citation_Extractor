@@ -1,6 +1,6 @@
 {
   "name": "kaamelott-citation-extractor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An xml extractor to get all kaamelott quotes",
   "main": "index.ts",
   "scripts": {

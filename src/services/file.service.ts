@@ -1,12 +1,12 @@
-import * as fs from "fs";
-import * as path from "path";
-import { CitationModel } from "../models/citation.model";
-import { commonService } from "./common.service";
-import { logger } from "./logger.service";
+import * as fs from 'fs';
+import * as path from 'path';
+import { CitationModel } from '../models/citation.model';
+import { commonService } from './common.service';
+import { logger } from './logger.service';
 
 export class FileService {
-  private baseDir = path.join(__dirname, "../");
-  private loggerContext = "FileService";
+  private baseDir = path.join(__dirname, '../');
+  private loggerContext = 'FileService';
 
   private ensureDirectory(dirPath: string): void {
     if (!fs.existsSync(dirPath)) {
@@ -17,11 +17,11 @@ export class FileService {
 
   private readJson<T>(filePath: string): T | undefined {
     const raw = commonService.safeExecute(
-      () => fs.readFileSync(filePath, "utf-8"),
+      () => fs.readFileSync(filePath, 'utf-8'),
       `Could not read file: ${filePath}`,
       this.loggerContext
     );
-    if (typeof raw !== "string") return;
+    if (typeof raw !== 'string') return;
     return commonService.safeExecute(
       () => JSON.parse(raw) as T,
       `Invalid JSON in file: ${filePath}`,
@@ -31,7 +31,7 @@ export class FileService {
 
   private writeFile(filePath: string, data: any): void {
     commonService.safeExecute(
-      () => fs.writeFileSync(filePath, data, "utf-8"),
+      () => fs.writeFileSync(filePath, data, 'utf-8'),
       `Could not write to file: ${filePath}`,
       this.loggerContext
     );
@@ -40,11 +40,7 @@ export class FileService {
 
   deleteFile(filePath: string) {
     if (fs.existsSync(filePath)) {
-      commonService.safeExecute(
-        () => fs.unlinkSync(filePath),
-        `Unable to delete: ${filePath}`,
-        this.loggerContext
-      );
+      commonService.safeExecute(() => fs.unlinkSync(filePath), `Unable to delete: ${filePath}`, this.loggerContext);
       logger.info(`File deleted: ${filePath}`, this.loggerContext);
     }
   }
@@ -60,38 +56,26 @@ export class FileService {
   }
 
   fileCreation(filePath: string, content: any) {
-    this.createFileIfMissing(filePath, () =>
-      fs.writeFileSync(filePath, content, { encoding: "utf8" })
-    );
+    this.createFileIfMissing(filePath, () => fs.writeFileSync(filePath, content, { encoding: 'utf8' }));
     logger.info(`Created: ${filePath}`, this.loggerContext);
   }
 
   private createFileIfMissing(filePath: string, initializer: () => void): void {
     if (!fs.existsSync(filePath)) {
-      commonService.safeExecute(
-        initializer,
-        `Could not create file: ${filePath}`,
-        this.loggerContext
-      );
+      commonService.safeExecute(initializer, `Could not create file: ${filePath}`, this.loggerContext);
     }
   }
 
-  appendToDataJson(
-    filePath: string,
-    items: CitationModel[],
-    fileName: string
-  ): void {
+  appendToDataJson(filePath: string, items: CitationModel[], fileName: string): void {
     const existing = this.readJson<CitationModel[]>(filePath) ?? [];
     let added = 0;
     for (const item of items) {
-      const isDuplicate = existing.some(
-        (e) => JSON.stringify(e) === JSON.stringify(item)
-      );
+      const isDuplicate = existing.some(e => JSON.stringify(e) === JSON.stringify(item));
       if (isDuplicate) {
         logger.warn(
           `Duplicate skipped: ${JSON.stringify({
             ...item,
-            _description: "...",
+            _description: '...',
           })}`,
           this.loggerContext
         );
@@ -99,11 +83,7 @@ export class FileService {
       }
       existing.push(item);
       added++;
-      logger.info(
-        `Added ${added} item(s) to ${fileName}.json`,
-        this.loggerContext,
-        true
-      );
+      logger.info(`Added ${added} item(s) to ${fileName}.json`, this.loggerContext, true);
     }
 
     this.writeFile(filePath, JSON.stringify(existing, null, 2));

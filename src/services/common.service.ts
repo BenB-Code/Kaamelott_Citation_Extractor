@@ -1,8 +1,8 @@
-import { CLEANING_REGEXP } from "../constants/cleaning-regexp.constant";
-import { logger } from "./logger.service";
+import { CLEANING_REGEXP } from '../constants/cleaning-regexp.constant';
+import { logger } from './logger.service';
 
 export class CommonService {
-  private loggerContext = "CommonService";
+  private loggerContext = 'CommonService';
   constructor() {}
   cleanText(text: string): string {
     let res = text;
@@ -15,12 +15,7 @@ export class CommonService {
     return res.trim();
   }
 
-  safeExecute<T>(
-    fn: () => T,
-    errorMsg: string,
-    context: string = this.loggerContext,
-    fallback?: T
-  ): T {
+  safeExecute<T>(fn: () => T, errorMsg: string, context: string = this.loggerContext, fallback?: T): T {
     try {
       return fn();
     } catch (err) {
@@ -30,10 +25,7 @@ export class CommonService {
   }
 
   capitalizeFirstLetter(text: string) {
-    return (
-      String(text).charAt(0).toUpperCase() +
-        String(text?.toLowerCase()).slice(1) || ""
-    );
+    return String(text).charAt(0).toUpperCase() + String(text?.toLowerCase()).slice(1) || '';
   }
 }
 

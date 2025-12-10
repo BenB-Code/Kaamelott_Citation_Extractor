@@ -1,4 +1,4 @@
-import { Episode } from "./episode.model";
+import { Episode } from './episode.model';
 export interface CitationModel {
   character_name: string;
   author: string[];
@@ -101,19 +101,19 @@ export class CitationMetadata {
 }
 
 export class CitationBuilder {
-  private _character_name: string = "";
+  private _character_name: string = '';
   private _author: string[] = [];
   private _actor: string[] = [];
-  private _description: string = "";
-  private _media: string = "";
-  private _season: string = "";
+  private _description: string = '';
+  private _media: string = '';
+  private _season: string = '';
   private _episode: Episode = {
-    name: "",
-    number: "",
+    name: '',
+    number: '',
   };
-  private _title: string = "";
-  private _show: string = "";
-  private _date: string = "";
+  private _title: string = '';
+  private _show: string = '';
+  private _date: string = '';
 
   character_name(value: string): this {
     this._character_name = value;

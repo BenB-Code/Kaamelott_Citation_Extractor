@@ -1,6 +1,7 @@
 name: Update citations
 on:
   workflow_dispatch:
+  
 jobs:
   lint:
     name: Lint & Format Check
@@ -43,10 +44,28 @@ jobs:
           mkdir -p package
           cp -r dist/parsed_extract/* package/
           cd package
-          zip -r ../kaamelott_citations.zip
+          zip -r ../kaamelott_citations.zip .
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: kaamelott_citations-${{ github-sha }}
-          path: kaamelott_citations.zip
-          retention-days: 7
+          name: kaamelott_citations-${{ github.run_number }}
+          path: ./kaamelott_citations.zip
+          retention-days: 77
+      - name: Compute SHA256
+        id: sha
+        run: |
+          shasum -a 256 kaamelott_citations.zip | awk '{ print $1 }' > sha256.txt
+          echo "sha=$(cat sha256.txt)" >> $GITHUB_OUTPUT
+      - name: Update Citations Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: citations-latest
+          name: Latest Citations
+          files: kaamelott_citations.zip
+          draft: false
+          prerelease: false
+          body: |
+            Updated on: ${{ github.event.workflow_dispatch.inputs.date || github.run_id }}
+            SHA256: ${{ steps.sha.outputs.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

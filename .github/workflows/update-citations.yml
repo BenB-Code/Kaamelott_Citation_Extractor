@@ -51,3 +51,13 @@ jobs:
           name: kaamelott_citations-${{ github.run_number }}
           path: ./kaamelott_citations.zip
           retention-days: 77
+      - name: Update Citations Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: citations-latest
+          name: Latest Citations
+          files: kaamelott_citations.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

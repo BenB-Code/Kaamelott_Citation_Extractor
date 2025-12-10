@@ -1,1 +1,3 @@
+echo "ceci est un test d'exec pre lint"
 npx lint-staged
+echo "ceci est un test d'exec post lint"

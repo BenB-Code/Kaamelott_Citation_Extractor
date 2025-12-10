@@ -43,10 +43,10 @@ jobs:
           mkdir -p package
           cp -r dist/parsed_extract/* package/
           cd package
-          zip -r ../kaamelott_citations.zip
+          zip -r ../kaamelott_citations.zip .
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
-          name: kaamelott_citations-${{ github-sha }}
-          path: kaamelott_citations.zip
+          name: ${{ github-run_number  }}
+          path: ./kaamelott_citations.zip
           retention-days: 7

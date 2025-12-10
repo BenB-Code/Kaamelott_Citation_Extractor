@@ -11,7 +11,7 @@ type FlatObject = { [key: string]: JsonValue };
 
 const loggerContext = 'CitationVariationExtractor';
 
-function flatten(obj: JsonObject, prefix: string = ''): FlatObject {
+function flatten(obj: JsonObject, prefix = ''): FlatObject {
   return Object.entries(obj).reduce<FlatObject>((acc, [k, v]) => {
     const key = prefix ? `${prefix}.${k}` : k;
     if (v && typeof v === 'object' && !Array.isArray(v)) {
@@ -24,19 +24,17 @@ function flatten(obj: JsonObject, prefix: string = ''): FlatObject {
 }
 
 function fieldToEnumName(field: string): string {
-  // Remplacer les points par des underscores et mettre en majuscules
   return field.replace(/\./g, '_').toUpperCase();
 }
 
 function valueToEnumMember(value: string): string {
-  // Remplacer les caractères accentués
   let result =
     value
-      .normalize('NFD') // Décompose les caractères accentués
-      .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
-      .replace(/[^a-zA-Z0-9]/g, '_') // Remplace les caractères spéciaux
-      .replace(/_+/g, '_') // Remplace les underscores multiples
-      .replace(/^_|_$/g, '') // Supprime les underscores au début/fin
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '')
       .toUpperCase() || 'EMPTY';
 
   if (/^\d/.test(result)) {
@@ -45,6 +43,7 @@ function valueToEnumMember(value: string): string {
 
   return result;
 }
+
 const citationsPath = path.join(process.cwd(), 'dist', PARSED_EXTRACT, GLOBAL, `${CITATIONS}${FILE_EXTENSION.JSON}`);
 
 if (!fs.existsSync(citationsPath)) {
@@ -64,26 +63,30 @@ const allFields = Array.from(new Set(flatData.flatMap(item => Object.keys(item))
 const valuesByField: Record<string, Set<string>> = {};
 allFields.forEach(f => (valuesByField[f] = new Set<string>()));
 
-function cleanValue(item: string | number | boolean | null | JsonObject | JsonArray) {
+function cleanValue(item: string | number | boolean | null | JsonObject | JsonArray): string {
   return String(item)
-    .replace(/\u00A0/g, ' ') // NBSP → space
-    .replace(/\s+/g, ' ') // plusieurs espaces → un seul
-    .trim(); // trim en tête/queue
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-flatData.forEach((item, i) => {
+flatData.forEach(item => {
   allFields.forEach(f => {
     if (Array.isArray(item[f]) && item[f].length > 1) {
-      item[f].forEach(item => {
-        if (item != null) {
-          let v = cleanValue(item);
-          if (v) valuesByField[f].add(v);
+      item[f].forEach(subItem => {
+        if (subItem !== null) {
+          const v = cleanValue(subItem);
+          if (v) {
+            valuesByField[f].add(v);
+          }
         }
       });
     } else {
-      if (item[f] != null) {
-        let v = cleanValue(item[f]);
-        if (v) valuesByField[f].add(v);
+      if (item[f] !== null) {
+        const v = cleanValue(item[f]);
+        if (v) {
+          valuesByField[f].add(v);
+        }
       }
     }
   });
@@ -106,10 +109,9 @@ allFields.forEach(field => {
 
   enumsContent += `export enum ${enumName} {\n`;
 
-  sortedValuesByField[field].forEach((value, index) => {
-    let enumMember = valueToEnumMember(value);
+  sortedValuesByField[field].forEach(value => {
+    const enumMember = valueToEnumMember(value);
 
-    // Gérer les doublons en ajoutant un suffixe numérique
     let finalEnumMember = enumMember;
     let counter = 1;
     while (Object.values(enumValueMaps[field]).includes(finalEnumMember)) {

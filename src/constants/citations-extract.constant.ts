@@ -9,7 +9,7 @@ export const CITATIONS_EXTRACT = {
   global_character_name: /===( |)\[\[w:Personnages de Kaamelott#([\s\S]*?)\|/g,
   specific_character_name: /<title>Kaamelott\/([\s\S]*?)<\/title>/g,
 
-  author: /\|[aA]uteur=\s*(?:\[\[)?\s*([^\|\]\n\r]+?)\s*(?:\]\])?(?=\s*\|)/g,
+  author: /\|[aA]uteur=\s*(?:\[\[)?\s*([^|\]\n\r]+?)\s*(?:\]\])?(?=\s*\|)/g,
   actor: /\|[aA]cteur=\s*(?:\[\[)?\s*([^\|\]\n\r]+?)\s*(?:\]\])?(?=\s*\||\}\})/g,
   description: /\{\{[cC]itation[\s\S]*?\|[cC]itation\s*=\s*(.*?)(?=\n?\}\}|\r?\n?\}\})/g,
 

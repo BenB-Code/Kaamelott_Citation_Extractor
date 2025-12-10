@@ -21,7 +21,6 @@ export class FileService {
       `Could not read file: ${filePath}`,
       this.loggerContext
     );
-    if (typeof raw !== 'string') return;
     return commonService.safeExecute(
       () => JSON.parse(raw) as T,
       `Invalid JSON in file: ${filePath}`,
@@ -29,7 +28,7 @@ export class FileService {
     );
   }
 
-  private writeFile(filePath: string, data: any): void {
+  private writeFile(filePath: string, data: string): void {
     commonService.safeExecute(
       () => fs.writeFileSync(filePath, data, 'utf-8'),
       `Could not write to file: ${filePath}`,
@@ -38,7 +37,7 @@ export class FileService {
     logger.info(`File updated: ${filePath}`, this.loggerContext);
   }
 
-  deleteFile(filePath: string) {
+  deleteFile(filePath: string): void {
     if (fs.existsSync(filePath)) {
       commonService.safeExecute(() => fs.unlinkSync(filePath), `Unable to delete: ${filePath}`, this.loggerContext);
       logger.info(`File deleted: ${filePath}`, this.loggerContext);
@@ -55,7 +54,7 @@ export class FileService {
     return dir;
   }
 
-  fileCreation(filePath: string, content: any) {
+  fileCreation(filePath: string, content: string): void {
     this.createFileIfMissing(filePath, () => fs.writeFileSync(filePath, content, { encoding: 'utf8' }));
     logger.info(`Created: ${filePath}`, this.loggerContext);
   }

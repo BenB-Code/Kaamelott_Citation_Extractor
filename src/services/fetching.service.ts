@@ -4,13 +4,11 @@ import { logger } from './logger.service';
 export class FetchingService {
   private loggerContext = 'FetchingService';
 
-  constructor() {}
-
   async fetch(url: string): Promise<string> {
     logger.info(`Fetching URL: ${url}`, this.loggerContext);
     try {
       const response = await fetch(url);
-      return response.text() || '';
+      return (await response.text()) || '';
     } catch (err: any) {
       logger.error(`Failed to fetch ${url}: ${err.message ?? err}`, this.loggerContext);
       return '';

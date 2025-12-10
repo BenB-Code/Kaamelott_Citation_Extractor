@@ -2,17 +2,17 @@ import { CITATIONS_EXTRACT } from '../constants/citations-extract.constant';
 import { EPISODES_NAMES } from '../constants/episodes-names.constant';
 import { MEDIA_TYPE } from '../constants/media.enum';
 import { MOVIES_NAMES } from './../constants/movies-names.constant';
-import { CitationBuilder, CitationMetadata, CitationModel } from './../models/citation.model';
 import { commonService } from './common.service';
+import { CitationMetadata } from '../models/citation-metadata.model';
+import { CitationModel } from '../models/citation.model';
+import { CitationBuilder } from '../models/citation-metadata.builder';
 
 export class ParserService {
-  constructor() {}
-
   isolateCharactersFromGlobal(list: RegExpExecArray[]): string[] {
     return [...list[0].input.matchAll(CITATIONS_EXTRACT.global_character_isolation)].map(e => e[0]);
   }
 
-  extractCharacterName(rawData: string, isGlobalFile: boolean) {
+  extractCharacterName(rawData: string, isGlobalFile: boolean): string {
     return isGlobalFile
       ? [...rawData.matchAll(CITATIONS_EXTRACT.global_character_name)].map(e => e[2])[0] || ''
       : [...rawData.matchAll(CITATIONS_EXTRACT.specific_character_name)].map(e => e[1])[0] || '';
@@ -26,7 +26,7 @@ export class ParserService {
     number: number | string;
   } {
     let episodeName = '';
-    let result = [...rawData.matchAll(regexp)][0] || '';
+    const result = [...rawData.matchAll(regexp)][0] || '';
 
     let cleanedResult = '';
     if (result[1]) {
@@ -46,7 +46,7 @@ export class ParserService {
 
   extractMultipleNames(rawData: string, regexp: RegExp): string[] {
     const result = this.extractContent(rawData, regexp);
-    let cleanedResult: string[] = result
+    const cleanedResult: string[] = result
       .split(CITATIONS_EXTRACT.names_divider)
       .filter(item => item !== '-' && item !== 'et');
     return cleanedResult;
@@ -59,11 +59,12 @@ export class ParserService {
     }
     return movieName;
   }
+
   extractContent(rawData: string, regexp: RegExp): string {
     return [...rawData.matchAll(regexp)].map(e => e[1])[0] || '';
   }
 
-  completeCitationData(rawData: string, citation: CitationMetadata) {
+  completeCitationData(rawData: string, citation: CitationMetadata): CitationMetadata {
     citation.actor = this.extractMultipleNames(rawData, CITATIONS_EXTRACT.actor);
     citation.author = this.extractMultipleNames(rawData, CITATIONS_EXTRACT.author);
     citation.description = this.extractContent(rawData, CITATIONS_EXTRACT.description);
@@ -87,7 +88,7 @@ export class ParserService {
     return citation;
   }
 
-  extractInfosFromRawData(rawData: string, isGlobalFile = false) {
+  extractInfosFromRawData(rawData: string, isGlobalFile = false): CitationModel[] {
     const completedCitationsList: CitationModel[] = [];
     const isALinkToSpecific = CITATIONS_EXTRACT.linkToSpecific.test(rawData);
     if (!isALinkToSpecific) {

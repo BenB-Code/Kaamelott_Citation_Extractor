@@ -15,8 +15,7 @@ import { parserService } from './services/parser.service';
 export class CitationsParser {
   private loggerContext = 'CitationsParser';
 
-  constructor() {}
-  async extractCitations() {
+  async extractCitations(): Promise<void> {
     logger.info('Start extracting citations', this.loggerContext);
     CITATIONS_XML_URLS.forEach(async url => {
       logger.info(`Processing file: ${url.fileName}`, this.loggerContext);
@@ -29,13 +28,13 @@ export class CitationsParser {
       if (data) {
         data = commonService.cleanText(data);
 
-        let citationsList: CitationModel[] = [];
+        const citationsList: CitationModel[] = [];
         const globalCitations = [...data.matchAll(CITATIONS_EXTRACT.global)];
 
         if (globalCitations.length > 0) {
           const globalCharactersList = parserService.isolateCharactersFromGlobal(globalCitations);
 
-          globalCharactersList.forEach((e, i) => {
+          globalCharactersList.forEach(e => {
             const results = parserService.extractInfosFromRawData(e, true);
             citationsList.push(...results);
           });
@@ -56,7 +55,7 @@ export class CitationsParser {
     logger.info('Citations parsing finished\n', this.loggerContext);
   }
 
-  private generateParsedFile(fileName: string, data: CitationModel[], dirName: string) {
+  private generateParsedFile(fileName: string, data: CitationModel[], dirName: string): void {
     const dirPath = fileService.checkDirValidity(path.join(PARSED_EXTRACT, dirName));
     const filePath = path.join(dirPath, `${fileName}${FILE_EXTENSION.JSON}`);
 
@@ -65,7 +64,7 @@ export class CitationsParser {
     logger.info(`Citations of ${fileName} extracted`, this.loggerContext);
   }
 
-  private async fetchedFilesCreation(url: CitationUrlXmlInterface) {
+  private async fetchedFilesCreation(url: CitationUrlXmlInterface): Promise<void> {
     const dirPath = fileService.checkDirValidity(path.join(FETCHED_EXTRACT, CITATIONS));
     const filePath = path.join(dirPath, `${url.fileName}${FILE_EXTENSION.XML}`);
     fileService.deleteFile(filePath);

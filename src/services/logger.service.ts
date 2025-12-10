@@ -21,19 +21,19 @@ export class Logger {
     }
   }
 
-  stringifyText(message: any): string {
+  stringifyText(message: unknown): string {
     return typeof message === 'string' ? message : JSON.stringify(message);
   }
 
-  info(message: any, context?: string, overwrite = false): void {
+  info(message: unknown, context?: string, overwrite = false): void {
     this.write(this.buildLine('INFO', this.stringifyText(message), context), overwrite);
   }
 
-  warn(message: any, context?: string, overwrite = false): void {
+  warn(message: unknown, context?: string, overwrite = false): void {
     this.write(this.buildLine('WARN', this.stringifyText(message), context), overwrite);
   }
 
-  error(message: any, context?: string, overwrite = false): void {
+  error(message: unknown, context?: string, overwrite = false): void {
     const text = message instanceof Error ? message.stack || message.message : JSON.stringify(message);
     this.write(this.buildLine('ERROR', text, context), overwrite);
   }

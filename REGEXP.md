@@ -1,68 +1,170 @@
-# Documentation des expressions régulières
+# Documentation des Expressions Régulières
 
 Documentation technique complète des expressions régulières utilisées dans le projet d'extraction de citations Kaamelott.
 
 ## 📋 Table des matières
 
-- [Vue d'ensemble](#vue-densemble)
-- [Regex principales](#regex-principales)
+- [Vue d'ensemble](#-vue-densemble)
+- [Quickstart](#-quickstart-pour-débutants)
+- [Regex principales](#-regex-principales)
   - [Citations](#citations)
   - [Personnages](#personnages)
   - [Métadonnées](#métadonnées)
   - [Médias et références](#médias-et-références)
-- [Regex de nettoyage](#regex-de-nettoyage)
-- [Guide technique](#guide-technique)
-- [Exemples d'utilisation](#exemples-dutilisation)
+- [Regex de nettoyage](#-regex-de-nettoyage)
+- [Guide technique](#-guide-technique)
+- [Exemples pratiques](#-exemples-pratiques)
+- [Références](#-références)
 
 ---
 
-## Vue d'ensemble
+## 🎯 Vue d'ensemble
 
-Ce projet utilise des expressions régulières pour parser le format wiki de Wikiquote et extraire les citations de Kaamelott. Les regex sont organisées en deux fichiers principaux :
-- [`citations-extract.constant.ts`](./src/constants/citations-extract.constant.ts) : Extraction des données
-- [`cleaning-regexp.constant.ts`](./src/constants/cleaning-regexp.constant.ts) : Nettoyage et normalisation
+### Objectif
+
+Transformer le **format Wikiquote** (XML avec syntaxe MediaWiki) en **données JSON structurées**.
+
+### Organisation
+
+Les regex sont organisées en **deux catégories** distinctes :
+
+| Fichier | Rôle | Nombre | Complexité |
+|---------|------|--------|-----------|
+| [`citations-extract.constant.ts`](./src/constants/citations-extract.constant.ts) | **Extraction** des données structurées | 12 regex | ⭐⭐⭐ |
+| [`cleaning-regexp.constant.ts`](./src/constants/cleaning-regexp.constant.ts) | **Nettoyage** et normalisation du texte | 16 regex | ⭐⭐ |
+
+### Workflow de traitement
+
+```
+XML Wikiquote
+    ↓
+┌───────────────────┐
+│ NETTOYAGE (16)    │  Normalise le format
+└───────────────────┘
+    ↓
+┌───────────────────┐
+│ EXTRACTION (12)   │  Extrait les métadonnées
+└───────────────────┘
+    ↓
+JSON structuré
+```
 
 ---
 
-## Regex principales
+## 🚀 Quickstart pour débutants
+
+### Exemple simple : Extraire un auteur
+
+**Input Wikiquote** :
+```wiki
+|auteur=[[Alexandre Astier]]|
+```
+
+**Regex utilisée** :
+```regex
+/\|[aA]uteur=\s*(?:\[\[)?\s*([^\|\]\n\r]+?)\s*(?:\]\])?(?=\s*\|)/g
+```
+
+**Résultat extrait** :
+```
+"Alexandre Astier"
+```
+
+### Comment la lire ?
+
+```
+\|              # Pipe littéral (début du paramètre)
+[aA]uteur=      # "auteur" ou "Auteur" + égale
+\s*             # Espaces optionnels
+(?:\[\[)?       # Lien wiki "[[" optionnel (non capturé)
+\s*             # Espaces
+(               # DÉBUT CAPTURE (ce qu'on veut)
+  [^\|\]\n\r]+? # Tout sauf |, ], retours ligne
+)               # FIN CAPTURE
+\s*             # Espaces
+(?:\]\])?       # Fermeture lien "]]" optionnelle
+(?=\s*\|)       # Lookahead : doit être suivi d'un pipe
+```
+
+### Concepts clés
+
+| Syntaxe | Nom | Rôle |
+|---------|-----|------|
+| `(...)` | **Capture group** | Ce qui est extrait et retourné |
+| `(?:...)` | **Non-capturing** | Groupe logique mais pas capturé |
+| `(?=...)` | **Lookahead** | Condition sans consommer les caractères |
+| `\s*` | **Quantifieur** | 0 ou plus espaces |
+| `[^\|]` | **Classe négative** | Tout sauf le pipe |
+
+---
+
+## 📖 Regex principales
 
 ### Citations
 
 #### `citations_divider` - Séparateur de blocs de citations
+
+**Objectif** : Découper le texte en blocs individuels de citations.
+
+**Complexité** : ⭐⭐⭐ (Utilise lookahead et alternatives)
+
 ```regex
 /\{\{\s*[Cc]itation\b[\s\S]*?(?=(\{\{\s*[Cc]itation\b|^===|\[\[\s*Catégorie\s*:\s*Kaamelott|$))/gmi
 ```
 
-**Décomposition détaillée :**
+**Décomposition étape par étape** :
+
 ```
-\{\{                    # Accolades ouvrantes littérales
-\s*                     # 0+ espaces blancs (espaces, tabs, retours ligne)
-[Cc]itation            # "Citation" ou "citation"
-\b                     # Frontière de mot (évite "citationnel")
-[\s\S]*?               # Tout caractère (incluant \n), lazy matching
-(?=                    # Lookahead positif (ne consomme pas)
-  (                    # Groupe de conditions OR
-    \{\{\s*[Cc]itation\b     # Prochaine citation
-    |                        # OU
-    ^===                     # Début de section (3 égales en début de ligne)
-    |                        # OU
-    \[\[\s*Catégorie\s*:\s*Kaamelott  # Catégorie wiki
-    |                        # OU
-    $                        # Fin du document
+┌─────────────────────────────────────────────────────────────┐
+│ PARTIE 1 : Début du match                                  │
+└─────────────────────────────────────────────────────────────┘
+\{\{                    # Accolades ouvrantes {{ (échappées)
+\s*                     # 0+ espaces/tabs/retours ligne
+[Cc]itation             # "Citation" ou "citation"
+\b                      # Frontière de mot (évite "citationnel")
+
+┌─────────────────────────────────────────────────────────────┐
+│ PARTIE 2 : Contenu capturé                                 │
+└─────────────────────────────────────────────────────────────┘
+[\s\S]*?                # Tout caractère (incluant \n)
+                        # *? = lazy (s'arrête au plus tôt)
+
+┌─────────────────────────────────────────────────────────────┐
+│ PARTIE 3 : Conditions d'arrêt (lookahead)                  │
+└─────────────────────────────────────────────────────────────┘
+(?=                     # Lookahead (ne consomme pas)
+  (                     # Groupe d'alternatives
+    \{\{\s*[Cc]itation\b      # Prochaine citation
+    |                         # OU
+    ^===                      # Section wiki (début de ligne)
+    |                         # OU
+    \[\[\s*Catégorie\s*:\s*Kaamelott  # Catégorie
+    |                         # OU
+    $                         # Fin du document
   )
 )
 ```
 
-**Flags :**
-- `g` : Global - trouve toutes les occurrences
-- `m` : Multiline - `^` et `$` matchent les débuts/fins de ligne
-- `i` : Case-insensitive
+**Flags importants** :
 
-**Exemple de match :**
+| Flag | Nom | Effet |
+|------|-----|-------|
+| `g` | Global | Trouve **toutes** les occurrences |
+| `m` | Multiline | `^` et `$` matchent débuts/fins de **ligne** |
+| `i` | Case-insensitive | Ignore la casse |
+
+**Exemple visuel** :
+
 ```wiki
-{{citation|citation=Texte de la citation|auteur=Arthur}}
-<!-- S'arrête ici -->
-{{citation|citation=Autre citation}}
+{{citation|citation=Première citation|auteur=Arthur}}
+         ↑                                          ↑
+      Début                                    Fin (avant {{)
+
+{{citation|citation=Deuxième citation|auteur=Perceval}}
+         ↑                                            ↑
+      Début                                      Fin (avant ===)
+
+=== Section suivante ===
 ```
 
 #### `description` - Extraction du texte de citation
@@ -391,33 +493,51 @@ Supprime les templates d'exposant : `{{exp}}`, `{{ère}}`, `{{exp|ère}}`, `{{e}
 
 ---
 
-## Exemples d'utilisation
+## 💡 Exemples pratiques
 
-### Extraction complète d'une citation
+### Cas d'usage 1 : Extraction complète d'une citation
 
-**Input Wiki :**
+**Scénario** : Parser une citation complète depuis Wikiquote.
+
+**Input Wikiquote** :
 ```wiki
 {{citation
 |citation=C'est pas faux
 |auteur=[[Perceval]]
 |acteur=Franck Pitiot
 |série=Kaamelott
-|saison=2
+|saison=Livre II
 |épisode=3: Les Exploités
 }}
 ```
 
-**Regex appliquées et résultats :**
+**Process d'extraction** :
 
-| Regex | Résultat extrait |
-|-------|------------------|
-| `citations_divider` | Bloc complet de la citation |
-| `description` | "C'est pas faux" |
-| `author` | "Perceval" |
-| `actor` | "Franck Pitiot" |
-| `show` | "Kaamelott" |
-| `season` | "2" |
-| `episode` | G1: "3", G2: "Les Exploités" |
+| Étape | Regex | Input | Output |
+|-------|-------|-------|--------|
+| 1️⃣ | `citations_divider` | Texte complet | Bloc isolé de la citation |
+| 2️⃣ | `description` | `\|citation=C'est pas faux` | `"C'est pas faux"` |
+| 3️⃣ | `author` | `\|auteur=[[Perceval]]` | `"Perceval"` |
+| 4️⃣ | `actor` | `\|acteur=Franck Pitiot` | `"Franck Pitiot"` |
+| 5️⃣ | `show` | `\|série=Kaamelott` | `"Kaamelott"` |
+| 6️⃣ | `season` | `\|saison=Livre II` | `"Livre II"` |
+| 7️⃣ | `episode` | `\|épisode=3: Les Exploités` | G1: `"3"`, G2: `"Les Exploités"` |
+
+**JSON final** :
+```json
+{
+  "character_name": "Perceval",
+  "description": "C'est pas faux",
+  "author": ["Perceval"],
+  "actor": ["Franck Pitiot"],
+  "show": "Kaamelott",
+  "season": "Livre II",
+  "episode": {
+    "number": "3",
+    "name": "Les Exploités"
+  }
+}
+```
 
 ### Parsing d'une section de personnage
 
@@ -442,9 +562,11 @@ Supprime les templates d'exposant : `{{exp}}`, `{{ère}}`, `{{exp|ère}}`, `{{e}
 3. **`citations_divider`** (sur chaque section)
    - Sépare les citations individuelles
 
-### Nettoyage de texte complexe
+### Cas d'usage 3 : Nettoyage de texte complexe
 
-**Input :**
+**Scénario** : Nettoyer un texte avec entités HTML, templates Wiki et formatage.
+
+**Input brut Wikiquote** :
 ```wiki
 &lt;poem&gt;
 C'est {{exp|ère}} pas&nbsp;faux{{formatnum:100}}
@@ -452,18 +574,26 @@ C'est {{exp|ère}} pas&nbsp;faux{{formatnum:100}}
 &lt;/poem&gt;
 ```
 
-**Étapes de nettoyage :**
+**Pipeline de nettoyage (ordre important)** :
 
-1. `/<\/?poem>/gi` → Supprime les balises poem
-2. `/{{(exp|ère|exp\|ère)}}/gi` → Supprime "{{exp|ère}}"
-3. `/&?(nbsp|amp);/gi` → Remplace "&nbsp;" par " "
-4. `/{{formatnum:(\d+)}}/gi` → "{{formatnum:100}}" → "100"
-5. `/(''|\\)/g` → Supprime les apostrophes doubles
-6. `/<\s*br\s*\/?\s*>/gi` → Remplace "<br/>" par " "
-7. `/&lt;/gi` et `/&gt;/gi` → Convertit les entités HTML
-8. `/\s{2,}/gi` → Normalise les espaces multiples
+| Étape | Regex | Action | Résultat intermédiaire |
+|-------|-------|--------|----------------------|
+| 0️⃣ | — | État initial | `&lt;poem&gt;C'est {{exp\|ère}} pas&nbsp;faux{{formatnum:100}}''vraiment''<br/>&lt;/poem&gt;` |
+| 1️⃣ | `/<\/?poem>/gi` | Supprime `<poem>` et `</poem>` | `&lt;&gt;C'est {{exp\|ère}} pas&nbsp;faux{{formatnum:100}}''vraiment''<br/>&lt;&gt;` |
+| 2️⃣ | `/&lt;/gi` → `<` | Convertit entités HTML | `<>C'est {{exp\|ère}} pas&nbsp;faux{{formatnum:100}}''vraiment''<br/><>` |
+| 3️⃣ | `/&gt;/gi` → `>` | Convertit entités HTML | `<>C'est {{exp\|ère}} pas faux{{formatnum:100}}''vraiment''<br/><>` |
+| 4️⃣ | `/&?(nbsp\|amp);/gi` → ` ` | Remplace `&nbsp;` par espace | `<>C'est {{exp\|ère}} pas faux{{formatnum:100}}''vraiment''<br/><>` |
+| 5️⃣ | `/{{(exp\|ère\|exp\\|ère)}}/gi` → ` ` | Supprime `{{exp\|ère}}` | `<>C'est  pas faux{{formatnum:100}}''vraiment''<br/><>` |
+| 6️⃣ | `/{{formatnum:(\d+)}}/gi` → `$1` | `{{formatnum:100}}` → `100` | `<>C'est  pas faux 100''vraiment''<br/><>` |
+| 7️⃣ | `/(''\\)/g` → ` ` | Supprime `''` | `<>C'est  pas faux 100 vraiment <br/><>` |
+| 8️⃣ | `/<\s*br\s*\/?\s*>/gi` → ` ` | `<br/>` → espace | `<>C'est  pas faux 100 vraiment  <>` |
+| 9️⃣ | `/\s{2,}/gi` → ` ` | Normalise espaces multiples | `<>C'est pas faux 100 vraiment <>` |
+| 🔟 | Trim + clean | Supprime `<>` vides | `C'est pas faux 100 vraiment` |
 
-**Résultat final :** `"C'est pas faux 100 vraiment"`
+**Résultat final** :
+```
+"C'est pas faux 100 vraiment"
+```
 
 ### Cas edge complexes
 
@@ -489,53 +619,84 @@ et des    espaces    multiples
 
 ---
 
-## Notes de maintenance
+## 🔧 Notes de maintenance
 
-### Tests recommandés
+### ✅ Tests recommandés
 
-1. **Tests unitaires** pour chaque regex :
-   - Cas nominaux
-   - Edge cases (espaces, retours ligne, casse)
-   - Chaînes vides
-   - Caractères spéciaux
+Pour garantir la fiabilité des regex :
 
-2. **Tests d'intégration** :
-   - Pages wiki complètes
-   - Sections mal formattées
-   - Templates imbriqués
+| Type de test | Cas à couvrir | Outils |
+|--------------|---------------|--------|
+| **Unitaires** | - Cas nominaux<br>- Edge cases (espaces, casse)<br>- Chaînes vides<br>- Caractères spéciaux | Jest |
+| **Intégration** | - Pages wiki complètes<br>- Sections mal formattées<br>- Templates imbriqués | Tests E2E |
+| **Performance** | - Volumes > 1000 citations<br>- Backtracking potentiel<br>- Mesure temps d'exécution | Benchmark |
 
-3. **Tests de performance** :
-   - Gros volumes (>1000 citations)
-   - Textes avec beaucoup de backtracking potentiel
-   - Mesure du temps d'exécution
+### 📊 Monitoring en production
 
-### Évolution et monitoring
+- ✅ Surveiller les **changements de format** sur Wikiquote
+- ✅ **Versionner** les regex avec changelog
+- ✅ **Logger** les échecs de parsing (voir `logger.service.ts`)
+- ✅ **Documenter** les nouveaux edge cases découverts
 
-- **Surveiller** les changements de format sur Wikiquote
-- **Versionner** les regex avec changelog
-- **Documenter** les nouveaux cas découverts
-- **Logger** les échecs de parsing en production
+### 🔄 Compatibilité
 
-### Compatibilité
+Les regex de ce projet sont écrites pour **JavaScript (ES2020+)** :
 
-Les regex sont écrites pour JavaScript (ES6+) mais devraient être compatibles avec :
-- Node.js (toutes versions récentes)
-- Navigateurs modernes
-- PCRE avec adaptations mineures
+| Environnement | Compatibilité | Notes |
+|---------------|---------------|-------|
+| Node.js v16+ | ✅ Complète | Environnement principal |
+| Node.js v22 | ✅ Complète | Utilisé en CI/CD |
+| Navigateurs modernes | ✅ Complète | Chrome, Firefox, Safari |
+| PCRE (PHP, etc.) | ⚠️ Adaptations mineures | Syntaxe légèrement différente |
 
-### Pièges courants
+### ⚠️ Pièges courants à éviter
 
-1. **Oublier le flag `m`** pour `^` et `$` multiligne
-2. **Greedy vs Lazy** : Toujours vérifier le comportement
-3. **Échappements** : Double-vérifier `\` dans les strings JS
-4. **Lookaheads** : Ne consomment pas = position reste identique
-5. **Ordre des alternatives** : `(exp|expression)` match "exp" en premier
+| Piège | Problème | Solution |
+|-------|----------|----------|
+| **Flag `m` oublié** | `^` et `$` ne matchent pas les lignes | Toujours ajouter `m` pour multiligne |
+| **Greedy vs Lazy** | `.*` capture trop | Utiliser `.*?` (lazy) |
+| **Échappements JS** | `\` dans strings | Utiliser `\\` ou regex literals `/.../ ` |
+| **Lookaheads** | Ne consomment pas les caractères | Position reste identique après match |
+| **Ordre alternatives** | `(exp\|expression)` match "exp" d'abord | Ordre du plus spécifique au plus général |
+
+### 🛠️ Outils de développement
+
+Pour tester et débugger les regex :
+
+| Outil | URL | Usage |
+|-------|-----|-------|
+| **Regex101** | [regex101.com](https://regex101.com/) | Test interactif + explications |
+| **RegExr** | [regexr.com](https://regexr.com/) | Visualiseur avec highlighting |
+| **MDN Docs** | [MDN Regex Guide](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) | Documentation de référence |
+| **Wikiquote** | [Aide:Citation](https://fr.wikiquote.org/wiki/Aide:Citation) | Format officiel des citations |
 
 ---
 
-## Références
+## 📚 Références
 
-- [MDN - Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions)
-- [Regex101 - Testeur en ligne](https://regex101.com/)
-- [RegExr - Visualiseur](https://regexr.com/)
-- [Wikiquote - Format des citations](https://fr.wikiquote.org/wiki/Aide:Citation)
+### Documentation officielle
+
+- 📖 [MDN - Regular Expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions) - Guide JavaScript complet
+- 📖 [Wikiquote - Format des citations](https://fr.wikiquote.org/wiki/Aide:Citation) - Syntaxe MediaWiki
+
+### Outils interactifs
+
+- 🔧 [Regex101](https://regex101.com/) - Testeur en ligne avec explications détaillées
+- 🔧 [RegExr](https://regexr.com/) - Visualiseur et cheatsheet
+- 🔧 [RegexBuddy](https://www.regexbuddy.com/) - Outil desktop (payant)
+
+### Ressources complémentaires
+
+- 📚 [Mastering Regular Expressions](https://www.oreilly.com/library/view/mastering-regular-expressions/0596528124/) - Livre de référence (O'Reilly)
+- 📚 [Regular-Expressions.info](https://www.regular-expressions.info/) - Tutoriels et exemples
+- 📚 [Regex Crossword](https://regexcrossword.com/) - Apprendre en jouant
+
+---
+
+<div align="center">
+
+**[← Retour au README](README.md)** | **[Voir le code source →](src/constants/)**
+
+*Documentation mise à jour pour Kaamelott Citation Extractor v1.0.1*
+
+</div>
